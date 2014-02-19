@@ -59,7 +59,7 @@ _index:insert{_space.n, 0, 'primary', 'tree', 1, 1, 0, 'num'}
 _index:replace{_space.n, 0, 'primary', 'tree', 1, 1, 0, 'num'}
 _index:insert{_index.n, 0, 'primary', 'tree', 1, 2, 0, 'num', 1, 'num'}
 _index:replace{_index.n, 0, 'primary', 'tree', 1, 2, 0, 'num', 1, 'num'}
-_index:select{}
+_index:select({}, { limit = 1000 })
 -- modify indexes of a system space
 _index:delete{_index.n, 0}
 _space:insert{1000, 0, 'hello'}

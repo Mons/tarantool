@@ -315,7 +315,7 @@ space.index['primary'].key_field
 space:insert{1, 2, 3, 4}
 space:insert{10, 20, 30, 40}
 space:insert{20, 30, 40, 50}
-space.index['primary']:select{}
+space.index['primary']:select({}, { limit = 100 })
 
 -- Truncate must not hang
 space:truncate()

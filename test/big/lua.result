@@ -865,11 +865,11 @@ space:insert{20, 30, 40, 50}
 ---
 - [20, 30, 40, 50]
 ...
-space.index['primary']:select{}
+space.index['primary']:select({}, { limit = 100 })
 ---
-- [1, 2, 3, 4]
-- [10, 20, 30, 40]
-- [20, 30, 40, 50]
+- - [1, 2, 3, 4]
+  - [10, 20, 30, 40]
+  - [20, 30, 40, 50]
 ...
 -- Truncate must not hang
 space:truncate()

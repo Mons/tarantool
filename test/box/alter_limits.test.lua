@@ -46,7 +46,7 @@ s:drop()
 -- space with no indexes - test update, delete, select, truncate
 s = box.schema.create_space('tweedledum')
 s:insert{0}
-s:select{}
+s:select({}, { limit = 1000 })
 s:delete{0}
 s:update(0, {{"=", 0, 0}})
 s:insert{0}
@@ -83,28 +83,28 @@ s:create_index('primary')
 s:insert{1}
 s:insert{1, 2}
 s:insert{1, 2, 3}
-s:select{}
+s:select({}, { limit = 1000 })
 -- increase arity -- error
 box.space['_space']:update(s.n, {{"=", 1, 3}})
-s:select{}
+s:select({}, { limit = 1000 })
 -- decrease arity - error
 box.space['_space']:update(s.n, {{"=", 1, 1}})
 -- remove arity - ok
 box.space['_space']:update(s.n, {{"=", 1, 0}})
-s:select{}
+s:select({}, { limit = 1000 })
 -- increase arity - error
 box.space['_space']:update(s.n, {{"=", 1, 3}})
 s:truncate()
-s:select{}
+s:select({}, { limit = 1000 })
 -- set arity of an empty space
 box.space['_space']:update(s.n, {{"=", 1, 3}})
-s:select{}
+s:select({}, { limit = 1000 })
 -- arity actually works
 s:insert{3, 4}
 s:insert{3, 4, 5}
 s:insert{3, 4, 5, 6}
 s:insert{7, 8, 9}
-s:select{}
+s:select({}, { limit = 1000 })
 -- check transition of space from enabled to disabled on
 -- deletion of the primary key
 s.enabled
@@ -256,12 +256,12 @@ s:insert{'Homevideo', 2011}
 s:insert{'Die Fremde', 2010}
 -- create index with data
 s:create_index('year', { type = 'tree', unique=false, parts = { 1, 'num'} })
-s.index.primary:select{}
+s.index.primary:select({}, { limit = 1000 })
 -- a duplicate in the created index
 s:create_index('nodups', { type = 'tree', unique=true, parts = { 1, 'num'} })
 -- change of non-unique index to unique: same effect
 s.index.year:alter({unique=true})
-s.index.primary:select{}
+s.index.primary:select({}, { limit = 1000 })
 box.space['_index']:update({s.n, s.index.year.id}, {{"=", 7, 'num'}})
 -- ambiguous field type
 s:create_index('str', { type = 'tree', unique =  false, parts = { 1, 'str'}})

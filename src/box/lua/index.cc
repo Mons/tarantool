@@ -214,7 +214,7 @@ lbox_create_iterator(struct lua_State *L)
 
 		if (!lua_isnil(L, -1)) {
 			type = (enum iterator_type) luaL_checkint(L, -1);
-			if (type < ITER_ALL || type >= iterator_type_MAX)
+			if (type < 0 || type >= iterator_type_MAX)
 				luaL_error(L, "unknown iterator type: %d", type);
 		}
 		lua_pop(L, 1);

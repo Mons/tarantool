@@ -45,7 +45,7 @@ box.schema.create_space = box.schema.space.create
 box.schema.space.drop = function(space_id)
     local _space = box.space[box.schema.SPACE_ID]
     local _index = box.space[box.schema.INDEX_ID]
-    local keys = { _index:select{space_id} }
+    local keys = _index:select(space_id, {limit = box.schema.INDEX_MAX})
     for i = #keys, 1, -1 do
         local v = keys[i]
         _index:delete{v[0], v[1]}
@@ -323,9 +323,34 @@ function box.schema.space.bless(space)
         return result
     end
 
-    --
-    index_mt.select = function(index, key)
-        return box._select(index.n, index.id, keify(key))
+    index_mt.select = function(index, key, opts)
+        local offset = 0
+        local limit = nil
+        local iterator = box.index.EQ
+        if opts ~= nil then
+            limit = opts.limit
+            offset = opts.offset ~= nil and opts.offset or 0
+            if type(opts.iterator) == "number" then
+                iterator = opts.iterator
+            elseif type(opts.iterator) == "string" then
+                iterator = box.index[opts.iterator]
+            end
+        end
+
+        local result = box._select(index.n, index.id, keify(key), iterator,
+            offset, limit ~= nil and limit or 2)
+        if limit == nil then
+            if #result == 0 then
+                return
+            elseif #result == 1 then
+                return result[1]
+            elseif #result > 1 then
+                box.raise(box.error.ER_MORE_THAN_ONE_TUPLE,
+                    "More than one tuple found without 'limit'")
+            end
+        else
+            return result
+        end
     end
     index_mt.update = function(index, key, ops)
         return box._update(index.n, index.id, keify(key), ops);
@@ -352,9 +377,9 @@ function box.schema.space.bless(space)
         return space.index[0]:eselect(key, opts)
     end
 
-    space_mt.select = function(space, key)
+    space_mt.select = function(space, key, opts)
         check_index(space, 0)
-        return space.index[0]:select(key)
+        return space.index[0]:select(key, opts)
     end
     space_mt.insert = function(space, tuple)
         return box._insert(space.n, tuple);
